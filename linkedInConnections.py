@@ -47,59 +47,69 @@ try:
 
     companiesList = []
     
-    #for i in range(10):
-    listedJobs = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.CLASS_NAME, "jobs-search-results"))
-    )
+    for i in range(7):
+        listedJobs = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.CLASS_NAME, "jobs-search-results"))
+        )
+        element = driver.find_element_by_class_name("jobs-search-two-pane__pagination")
+        driver.execute_script("arguments[0].scrollIntoView();",element)
+        # driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
 
-    companies = listedJobs.find_element_by_class_name("job-card-container__company-name")
+        companies = listedJobs.find_elements_by_class_name("job-card-container__company-name")
 
-    # for company in companies:
-    #     print(company.text)
-    if companies.text not in companiesList:
-        companiesList.append(companies)
-        alumni = listedJobs.find_element_by_class_name("job-flavors__logo-container")
-        actions.move_to_element(alumni)
-        actions.click()
-        actions.perform()
-
-        results = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, "search-results-container")))
-        profile_names = results.find_elements_by_class_name("actor-name")
+       
+        print(companies[i].text)
+        company = companies[i].text
         
-        employees = driver.current_url
+        # if company not in companiesList:
+        #     companiesList.append(company)
+        #     print(companiesList)
+        #     # alumni = listedJobs.find_element_by_class_name("job-flavors__logo-container")
+        #     logo = listedJobs.find_elements_by_class_name("job-flavors__logo-image")
+        #     logo_id = logo[i].get_attribute('id')
+        #     print(logo_id)
+        #     alumni = listedJobs.find_element_by_id(logo_id)
+        #     actions.move_to_element(alumni)
+        #     actions.click()
+        #     actions.perform()
 
-        #Loop through the list of names so I can visit each person's profile 
-        id_counter = 0
-        for name in range(len(profile_names)):
-            #wait for search results to show 
-            results = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, "search-results-container")))
-
-            #create list of profiles for every iterations due to ids changing dynamically every time we return to the results page
-            profile_id = results.find_elements_by_class_name("presence-entity--size-4")
-
-            #grab the id of the next listed result
-            ID = profile_id[id_counter].get_attribute('id')
-
-            #find web element unique id 
-            profile = results.find_element_by_id(ID)
-
-            #increment id_counter to move to next result in list of profile_id
-            id_counter += 1
-
-            #create new action chain 
-            profile_action = ActionChains(driver)
-            driver.implicitly_wait(5)
-            profile_action.move_to_element(profile)
-            profile_action.click()
-            profile_action.perform()
+        #     results = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, "search-results-container")))
+        #     profile_names = results.find_elements_by_class_name("actor-name")
             
-            time.sleep(5)
-            driver.back()
-        
-            profile_name = WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.CLASS_NAME, "actor-name")))
+        #     employees = driver.current_url
 
-        #Move on to next companies in jobs that has not yet been visited and have UCI alumni
-        driver.back()
+        #     #Loop through the list of names so I can visit each person's profile 
+        #     id_counter = 0
+        #     for name in range(len(profile_names)):
+        #         #wait for search results to show 
+        #         results = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, "search-results-container")))
+
+        #         #create list of profiles for every iterations due to ids changing dynamically every time we return to the results page
+        #         profile_id = results.find_elements_by_class_name("presence-entity--size-4")
+
+        #         #grab the id of the next listed result
+        #         ID = profile_id[id_counter].get_attribute('id')
+
+        #         #find web element unique id 
+        #         profile = results.find_element_by_id(ID)
+
+        #         #increment id_counter to move to next result in list of profile_id
+        #         id_counter += 1
+
+        #         #create new action chain 
+        #         profile_action = ActionChains(driver)
+        #         driver.implicitly_wait(5)
+        #         profile_action.move_to_element(profile)
+        #         profile_action.click()
+        #         profile_action.perform()
+                
+        #         time.sleep(5)
+        #         driver.back()
+            
+        #         profile_name = WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.CLASS_NAME, "actor-name")))
+
+        #     #Move on to next companies in jobs that has not yet been visited and have UCI alumni
+        #     driver.back()
 
 
 finally:
