@@ -25,7 +25,11 @@ password.clear()
 password.send_keys(pswd)
 password.send_keys(Keys.RETURN)
 
-actions = ActionChains(driver)
+def scroll_element_into_view(element):
+    driver.execute_script("arguments[0].scrollIntoView(true);", element)
+    time.sleep(1)
+
+# actions = ActionChains(driver)
 try:
     jobs = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable((By.ID, "ember26"))
@@ -39,27 +43,70 @@ try:
     job = jobs.find_element_by_class_name("job-card-square__title")
     job.click()
 
-    # companiesList = []
-
-    # listedJobs = WebDriverWait(driver, 10).until(
-    #     EC.presence_of_element_located((By.CLASS_NAME, "jobs-search-results"))
-    # )
-
     companiesList = []
     
-    for i in range(7):
-        listedJobs = WebDriverWait(driver, 10).until(
+    listedJobs = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.CLASS_NAME, "jobs-search-results"))
+    )
+
+    # total_elements = listedJobs.find_elements_by_class_name("occludable-update")
+    # print(len(total_elements))
+
+    # #scroll to the bottom of the page on the left pane window
+    # for item in range(len(total_elements)):
+    #     scroll_element_into_view(total_elements[item])
+
+        
+    #     companies = listedJobs.find_elements_by_class_name("job-card-container__company-name")
+    page_number = 1
+    pages = listedJobs.find_elements_by_class_name("artdeco-pagination__indicator--number")
+    print("Starting amount of pages =", len(pages))
+    for page in range(len(pages)):
+        print("Current page:",page_number)
+        page_number += 1
+        total_elements = listedJobs.find_elements_by_class_name("occludable-update")
+        print(len(total_elements))
+
+        #scroll to the bottom of the page on the left pane window
+        for item in range(len(total_elements)):
+            scroll_element_into_view(total_elements[item])
+
+            
+            companies = listedJobs.find_elements_by_class_name("job-card-container__company-name")
+        
+        pages = listedJobs.find_elements_by_class_name("artdeco-pagination__indicator--number")
+        print("Updated amount of pages =", len(pages))    
+        actions = ActionChains(driver)
+        next_page = pages[page + 1]
+        actions.move_to_element(next_page)
+        actions.click()
+        actions.perform()
+        nextPageToLoad = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.CLASS_NAME, "jobs-search-results"))
         )
-        element = driver.find_element_by_class_name("jobs-search-two-pane__pagination")
-        driver.execute_script("arguments[0].scrollIntoView();",element)
-        # driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
 
-        companies = listedJobs.find_elements_by_class_name("job-card-container__company-name")
+        
 
+
+
+    # current_page = listedJobs.find_element_by_class_name("selected").text
+
+    # current_page = int(page.text)
+    # print(current_page)
+        # for page in range(len(pages)):
+        #     print(pages[page].text)
+        #     current_page = pages[page].get_attribute('aria-current')
+        #     print(current_page)
+        #     if current_page == "true":
+        #         next_page = pages[page + 1]
+        #         actions.move_to_element(next_page)
+        #         actions.click()
+        #         actions.perform()
+
+
+    # for c in companies:
+    #     print(c.text)
        
-        print(companies[i].text)
-        company = companies[i].text
         
         # if company not in companiesList:
         #     companiesList.append(company)
