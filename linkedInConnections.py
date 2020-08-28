@@ -27,7 +27,7 @@ password.send_keys(Keys.RETURN)
 
 def scroll_element_into_view(element):
     driver.execute_script("arguments[0].scrollIntoView(true);", element)
-    time.sleep(1)
+    time.sleep(0.5)
 
 # actions = ActionChains(driver)
 try:
@@ -67,6 +67,10 @@ try:
         total_elements = listedJobs.find_elements_by_class_name("occludable-update")
         print(len(total_elements))
 
+        pages = listedJobs.find_elements_by_class_name("artdeco-pagination__indicator--number")
+        print("Current index:", page)
+        print("This is the current page:",pages[page].text)
+
         #scroll to the bottom of the page on the left pane window
         for item in range(len(total_elements)):
             scroll_element_into_view(total_elements[item])
@@ -74,16 +78,29 @@ try:
             
             companies = listedJobs.find_elements_by_class_name("job-card-container__company-name")
         
-        pages = listedJobs.find_elements_by_class_name("artdeco-pagination__indicator--number")
-        print("Updated amount of pages =", len(pages))    
+        
+        print("Updated amount of pages =", len(pages))  
+
+        '''
+        Here we have to check the current index bc once we reach page 4 
+        the index would grab page 5 instead due to the list of pages changing 
+        dynamically.
+        '''
         actions = ActionChains(driver)
-        next_page = pages[page + 1]
-        actions.move_to_element(next_page)
-        actions.click()
-        actions.perform()
+        if page <= 2:
+            next_page = pages[page + 1]
+            actions.move_to_element(next_page)
+            actions.click()
+            actions.perform()
+        else:
+            next_page = pages[page - 1]
+            actions.move_to_element(next_page)
+            actions.click()
+            actions.perform()
         nextPageToLoad = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.CLASS_NAME, "jobs-search-results"))
+            EC.presence_of_element_located((By.CLASS_NAME, "jobs-search-results__list")) 
         )
+
 
         
 
