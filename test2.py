@@ -1,4 +1,5 @@
 from selenium import webdriver
+from bs4 import BeautifulSoup
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -27,7 +28,7 @@ password.send_keys(Keys.RETURN)
 
 def scroll_element_into_view(element):
     driver.execute_script("arguments[0].scrollIntoView(true);", element)
-    time.sleep(0.5)
+    time.sleep(1)
 
 # actions = ActionChains(driver)
 #ember26
@@ -56,20 +57,15 @@ try:
     listNum = 0
     page_number = 1
     pages = listedJobs.find_elements_by_class_name("artdeco-pagination__indicator--number")
-    #print("Starting amount of pages =", len(pages))
     for page in range(len(pages)):
-        #print("Current page:",page_number)
         page_number += 1
         total_elements = listedJobs.find_elements_by_class_name("occludable-update")
-        #total_elements = listedJobs.find_elements_by_class_name("job-card-list__insight")
-        #print(len(total_elements))
-        pages = listedJobs.find_elements_by_class_name("artdeco-pagination__indicator--number")
-        #print("Current index:", page)
-        #print("This is the current page:",pages[page].text)
+        
+        # pages = listedJobs.find_elements_by_class_name("artdeco-pagination__indicator--number")
+      
 
         #scroll to the bottom of the page on the left pane window
-        num = 0
-        i = 0 #move this on top of for loop above this one
+        i = 1 #move this on top of for loop above this one
         for item in range(len(total_elements)):
             print("Total elements:", len(total_elements))
             listedJobs = WebDriverWait(driver, 10).until(
@@ -77,35 +73,52 @@ try:
             )
             #total_elements holds the number of results per page which is 24 results for each page 
             total_elements = listedJobs.find_elements_by_class_name("occludable-update")
-            #total_elements = listedJobs.find_elements_by_class_name("job-card-list__insight")
+            
             scroll_element_into_view(total_elements[item])
-            
-            
-            companies = listedJobs.find_elements_by_class_name("job-card-container__company-name")
-            print("Length of companies:", len(companies))
+
+            titlePath = '/html/body/div[7]/div[3]/div[3]/div/div/div/div[1]/section/div/ul/li[' + str(item + 1) + ']/div/div/div[1]/div[2]/div[1]/a'
+            title = listedJobs.find_element_by_xpath(titlePath)
+
+            # companies = listedJobs.find_elements_by_class_name("job-card-container__company-name")
+            # print("Length of companies:", len(companies))
             #scroll_element_into_view(companies[item])
-
-            num += 1
-            #print("Num:",num, companies[item].text)
-
-            company = companies[item].text
+            logo = listedJobs.find_elements_by_class_name("job-flavors__logo-image")
+            print("Lenght of logos:", len(logo))
+            
+            
+            '''xml path to title'''
+            #/html/body/div[7]/div[3]/div[3]/div/div/div/div[1]/section/div/ul/li[1]/div/div/div[1]/div[2]/div[1]/a
+            '''xml path to alumni'''
+            #/html/body/div[7]/div[3]/div[3]/div/div/div/div[1]/section/div/ul/li[22]/div/div/div[2]/div/div/a
+            print("Item #:", item)
+            #company = companies[item].text
+            company = title.text
 
             if company not in companiesList:
                 companiesList.append(company)
-                # scroll_element_into_view(companies[listNum])
-                # listNum += 1
-                # #scroll_element_into_view(total_elements[item])
-                # logo = listedJobs.find_elements_by_class_name("job-flavors__logo-image")
-                # #need to fix indexing here
-                # print("Lenght of logos:", len(logo))
-                # print("Item Number:", item)
-                # logo_id = logo[i].get_attribute('id')
+
                 # print("i =", i)
+
+                # logo_id = logo[i].get_attribute('id')
+                
                 # print("Logo:", logo[i].get_attribute('title'))
+
                 # if i < len(logo):
                 #     i += 1
+
+                logo_path = '/html/body/div[7]/div[3]/div[3]/div/div/div/div[1]/section/div/ul/li[' + str(item + 1) + ']/div/div/div[2]/div/div/a'
+                try:
+                    l = listedJobs.find_element_by_xpath(logo_path)
+                    actions = ActionChains(driver)
+                    actions.move_to_element(l)
+                    actions.click()
+                    actions.perform()
+                    results = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, "search-results-container")))
+                    profile_names = results.find_elements_by_class_name("actor-name-with-distance")
+                    driver.back()
+                except:
+                    pass
               
-                # #logo_id = logo[item].get_attribute('id')
                 # alumni = listedJobs.find_element_by_id(logo_id)
                 # actions = ActionChains(driver)
                 # actions.move_to_element(alumni)
@@ -114,11 +127,10 @@ try:
                 
 
                 # results = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, "search-results-container")))
-                # #profile_names = results.find_elements_by_class_name("actor-name")
                 # profile_names = results.find_elements_by_class_name("actor-name-with-distance")
                 
                 # employees = driver.current_url
-                print(companiesList)
+                #print(companiesList)
                 
 
                 #Loop through the list of names so I can visit each person's profile 
@@ -153,7 +165,7 @@ try:
                     #profile_name = WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.CLASS_NAME, "actor-name")))
 
                 #Move on to next companies in jobs that has not yet been visited and have UCI alumni
-                #driver.back()
+                # driver.back()
         print("List of companies:", companiesList)
             
         
@@ -164,6 +176,10 @@ try:
         the index would grab page 5 instead due to the list of pages changing 
         dynamically.
         '''
+        listedJobs = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.CLASS_NAME, "jobs-search-results"))
+        )
+        pages = listedJobs.find_elements_by_class_name("artdeco-pagination__indicator--number")
         actions = ActionChains(driver)
         if page <= 2:
             next_page = pages[page + 1]
@@ -232,7 +248,8 @@ try:
         #     #Move on to next companies in jobs that has not yet been visited and have UCI alumni
         #     driver.back()
 
-
+# except:
+#     pass
 finally:
     print("done")
     #driver.close()
