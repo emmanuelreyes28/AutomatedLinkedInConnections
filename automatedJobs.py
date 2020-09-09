@@ -66,9 +66,6 @@ try:
 
             titlePath = '/html/body/div[7]/div[3]/div[3]/div/div/div/div[1]/section/div/ul/li[' + str(item + 1) + ']/div/div/div[1]/div[2]/div[1]/a'
             title = listedJobs.find_element_by_xpath(titlePath)
-
-            logo = listedJobs.find_elements_by_class_name("job-flavors__logo-image")
-            print("Lenght of logos:", len(logo))
             
             jobTitle = title.text
 
